@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css" />
+    <title>Sorting Algorithms</title>
+</head>
+
+<body>
+    <div class="heading" style="text-align:center;background-color: green;padding:50px;color: yellow;margin-top: 0px;">
+        <h1>Comparison Sorting Algorithms</h1>
+    </div>
+    <div style="margin-top: 50px; margin-bottom: 50px;">
+        <button onclick="randomizeArray()">Randomize Array</button>
+        <button onclick="insertionSort()">Insertion Sort</button>
+        <button onclick="selectionSort()">Selection Sort</button>
+        <button onclick="bubbleSort()">Bubble Sort</button>
+        <button onclick="quickSort()">Quick Sort</button>
+        <button onclick="mergeSort()">Merge Sort</button>
+        <button onclick="shellSort()">Shell Sort</button>
+        <button onclick="changeSize()">Decrease Size</button>
+        <button onclick="changeSize1()">Increase Size</button>
+        <button onclick="togglePause()">Pause</button>
+        <button onclick="skipBack()">Skip Back</button>
+        <button onclick="stepBack()">Step Back</button>
+        <button onclick="stepForward()">Step Forward</button>
+        <button onclick="skipForward()">Skip Forward</button>
+        <br><br><br>
+        <label for="speedSlider">Animation Speed:</label>
+        <input onchange=" animationSpeed = parseInt(document.getElementById('speedSlider').value);" type="range"
+            id="speedSlider" min="1" max="53" value="15">
+        <br><br><br>
+        <label for="speedSlider">Bar count</label>
+        <input onchange="randomizeArray()" type="range" id="speedSlider1" min="1" max="53" value="15">
+    </div>
+
+    <div id="barsContainer" class="bar-container"></div>
+
+    <script>
+        // Global variables
+        let bars = []; // Array to store bar values
+        let barContainer = document.getElementById('barsContainer');
+        let animationSpeed = 5; // Default speed
+        let paused = false;
+        let currentIndex = 0;
+
+        // Function to generate random array of bars
+        function randomizeArray() {
+            bars = [];
+            barContainer.innerHTML = '';
+            barcount = parseInt(document.getElementById('speedSlider1').value);
+            for (let i = 0; i < barcount; i++) {
+                const value = Math.floor(Math.random() * 100) + 1;
+                bars.push(value);
+
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = value + 'px';
+
+                const label = document.createElement('div');
+                label.className = 'bar-label';
+                label.textContent = value;
+
+                bar.appendChild(label);
+                barContainer.appendChild(bar);
+            }
+            currentIndex = 0;
+        }
+
+        // Function to change the size of bars
+        function changeSize() {
+            const barsElements = document.querySelectorAll('.bar');
+
+            barsElements.forEach(bar => {
+                bar.style.height = (parseInt(bar.style.height) / 2) + 'px';
+            });
+        }
+
+        function changeSize1() {
+            const barsElements = document.querySelectorAll('.bar');
+
+            barsElements.forEach(bar => {
+                bar.style.height = (parseInt(bar.style.height) + parseInt(bar.style.height) / 2) + 'px';
+            });
+        }
+
+        // Function for insertion sort
+        async function insertionSort() {
+            animationSpeed = parseInt(document.getElementById('speedSlider').value);
+            currentIndex = 0;
+            for (let i = 1; i < bars.length; i++) {
+
+                let key = bars[i];
+                let j = i - 1;
+
+                // Visualize the comparison process
+                while (j >= 0 && bars[j] > key) {
+                    // Swap the bars by changing their sizes
+                    bars[j + 1] = bars[j];
+                    bars[j] = key;
+
+                    await animateBars(j, j + 1); // Animate the swapping
+
+                    j = j - 1;
+                }
+                currentIndex = i;
+            }
+            currentIndex = bars.length;
+        }
+
+        // Function for selection sort
+        async function selectionSort() {
+            const n = bars.length;
+
+            for (let i = 0; i < n - 1; i++) {
+                let minIndex = i;
+
+                for (let j = i + 1; j < n; j++) {
+                    if (bars[j] < bars[minIndex]) {
+                        minIndex = j;
+                    }
+                }
+
+                // Swap the bars by changing their sizes
+                let temp = bars[minIndex];
+                bars[minIndex] = bars[i];
+                bars[i] = temp;
+
+                await animateBars(i, minIndex); // Animate the swapping
+            }
+        }
+
+        // Function for bubble sort
+        async function bubbleSort() {
+            const n = bars.length;
+
+            for (let i = 0; i < n - 1; i++) {
+                for (let j = 0; j < n - i - 1; j++) {
+                    if (bars[j] > bars[j + 1]) {
+                        // Swap the bars by changing their sizes
+                        let temp = bars[j];
+                        bars[j] = bars[j + 1];
+                        bars[j + 1] = temp;
+
+                        await animateBars(j, j + 1); // Animate the swapping
+                    }
+                }
+            }
+        }
+
+        // Function for quicksort
+        async function quickSort() {
+            await quickSortHelper(0, bars.length - 1);
+        }
+
+        async function quickSortHelper(low, high) {
+            if (low < high) {
+                let partitionIndex = await partition(low, high);
+
+                await quickSortHelper(low, partitionIndex - 1);
+                await quickSortHelper(partitionIndex + 1, high);
+            }
+        }
+
+        async function partition(low, high) {
+            let pivot = bars[high];
+            let i = low - 1;
+
+            for (let j = low; j <= high - 1; j++) {
+                if (bars[j] < pivot) {
+                    i++;
+
+                    // Swap the bars by changing their sizes
+                    let temp = bars[i];
+                    bars[i] = bars[j];
+                    bars[j] = temp;
+
+                    await animateBars(i, j); // Animate the swapping
+                }
+            }
+
+            // Swap the bars by changing their sizes
+            let temp = bars[i + 1];
+            bars[i + 1] = bars[high];
+            bars[high] = temp;
+
+            await animateBars(i + 1, high); // Animate the swapping
+
+            return i + 1;
+        }
+
+        // Function for merge sort
+        async function mergeSort() {
+            await mergeSortHelper(0, bars.length - 1);
+        }
+
+        async function mergeSortHelper(low, high) {
+            if (low < high) {
+                let mid = Math.floor((low + high) / 2);
+
+                await mergeSortHelper(low, mid);
+                await mergeSortHelper(mid + 1, high);
+
+                await merge(low, mid, high);
+            }
+        }
+
+        async function merge(low, mid, high) {
+            let leftArray = bars.slice(low, mid + 1);
+            let rightArray = bars.slice(mid + 1, high + 1);
+
+            let i = 0, j = 0, k = low;
+
+            while (i < leftArray.length && j < rightArray.length) {
+                if (leftArray[i] <= rightArray[j]) {
+                    bars[k] = leftArray[i];
+                    i++;
+                } else {
+                    bars[k] = rightArray[j];
+                    j++;
+                }
+
+                k++;
+                await animateBarsMergeSort(k - 1, bars[k - 1]); // Animate the merging
+            }
+
+            while (i < leftArray.length) {
+                bars[k] = leftArray[i];
+                i++;
+                k++;
+
+                await animateBarsMergeSort(k - 1, bars[k - 1]); // Animate the merging
+            }
+
+            while (j < rightArray.length) {
+                bars[k] = rightArray[j];
+                j++;
+                k++;
+
+                await animateBarsMergeSort(k - 1, bars[k - 1]); // Animate the merging
+            }
+        }
+
+        async function animateBarsMergeSort(index, value) {
+            const bar = document.querySelectorAll('.bar')[index];
+
+            // Change color to indicate merging
+            bar.style.backgroundColor = 'red';
+
+            // Change the height of the bar
+            bar.style.height = value + 'px';
+
+            // Change the label text
+            bar.querySelector('.bar-label').textContent = value;
+            while (paused) {
+                // If paused, wait before checking again
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            // Add a short delay for visualization
+            await new Promise(resolve => setTimeout(resolve, 510 - (10 * animationSpeed)));
+
+            // Restore the original color
+            bar.style.backgroundColor = '#3498db';
+        }
+
+        // Function for shellsort
+        async function shellSort() {
+            const n = bars.length;
+            let gap = Math.floor(n / 2);
+
+            while (gap > 0) {
+                for (let i = gap; i < n; i++) {
+                    let temp = bars[i];
+                    let j = i;
+                    // Visualize the comparison process
+                    while (j >= gap && bars[j - gap] > temp) {
+                        // Swap the bars by changing their sizes
+                        bars[j] = bars[j - gap];
+
+                        await animateBars(j - gap, j); // Animate the swapping
+
+                        j -= gap;
+                    }
+
+                    bars[j] = temp;
+                }
+
+                gap = Math.floor(gap / 2);
+            }
+        }
+
+        // Function to animate the swapping of bars
+        async function animateBars(index1, index2) {
+
+            // animationSpeed = parseInt(document.getElementById('speedSlider').value);
+            const bar1 = document.querySelectorAll('.bar')[index1];
+            const bar2 = document.querySelectorAll('.bar')[index2];
+
+            // Swap the heights
+            const tempHeight = bar1.style.height;
+            bar1.style.height = bar2.style.height;
+            bar2.style.height = tempHeight;
+
+            // Swap the labels
+            const tempLabel = bar1.querySelector('.bar-label').textContent;
+            bar1.querySelector('.bar-label').textContent = bar2.querySelector('.bar-label').textContent;
+            bar2.querySelector('.bar-label').textContent = tempLabel;
+
+            // Add a short delay for visualization
+            // await new Promise(resolve => setTimeout(resolve, 300));
+            while (paused) {
+                // If paused, wait before checking again
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            await new Promise(resolve => setTimeout(resolve, 510 - (10 * animationSpeed)));
+            currentIndex = index2 + 1;
+        }
+
+        // Controls functionality
+        function togglePause() {
+            paused = !paused;
+        }
+
+        function skipBack() {
+            currentIndex = Math.max(currentIndex - 5, 0);
+            updateBars();
+        }
+
+        function stepBack() {
+            currentIndex = Math.max(currentIndex - 1, 0);
+            updateBars();
+        }
+
+        function stepForward() {
+            currentIndex = Math.min(currentIndex + 1, bars.length);
+            updateBars();
+        }
+
+        function skipForward() {
+            currentIndex = Math.min(currentIndex + 6, bars.length);
+            updateBars();
+        }
+
+        function updateBars() {
+            const barsElements = document.querySelectorAll('.bar');
+
+            for (let i = 0; i < bars.length; i++) {
+                const bar = barsElements[i];
+                const value = bars[i];
+                const label = bar.querySelector('.bar-label');
+
+                bar.style.height = value + 'px';
+                label.textContent = value;
+            }
+        }
+    </script>
+
+</body>
+
+</html>
